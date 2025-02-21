@@ -8,26 +8,11 @@ import org.nsu.syspro.parprog.base.DefaultFork;
 import org.nsu.syspro.parprog.base.DiningTable;
 import org.nsu.syspro.parprog.examples.DefaultPhilosopher;
 import org.nsu.syspro.parprog.helpers.TestLevels;
+import org.nsu.syspro.parprog.interfaces.Fork;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BasicTest extends TestLevels {
-
-    static final class BasicTable extends DiningTable<DefaultPhilosopher, DefaultFork> {
-        public BasicTable(int N) {
-            super(N);
-        }
-
-        @Override
-        public DefaultFork createFork() {
-            return new DefaultFork();
-        }
-
-        @Override
-        public DefaultPhilosopher createPhilosopher() {
-            return new DefaultPhilosopher();
-        }
-    }
 
     @EnabledIf("easyEnabled")
     @ParameterizedTest
@@ -66,5 +51,23 @@ class BasicTest extends TestLevels {
         final long minMeals = table.minMeals();
         final long maxMeals = table.maxMeals();
         assertTrue(maxMeals < 1.5 * minMeals); // some king of gini index for philosophers
+    }
+
+    static final class BasicTable extends DiningTable<DefaultPhilosopher, DefaultFork> {
+
+        public BasicTable(int N) {
+            super(N);
+        }
+
+        @Override
+        public DefaultFork createFork() {
+            return new DefaultFork();
+        }
+
+        @Override
+        public DefaultPhilosopher createPhilosopher() {
+            return new DefaultPhilosopher();
+
+        }
     }
 }
