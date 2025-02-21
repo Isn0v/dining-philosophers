@@ -4,14 +4,17 @@ import org.nsu.syspro.parprog.interfaces.Fork;
 import org.nsu.syspro.parprog.interfaces.Philosopher;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class DiningTable<P extends Philosopher, F extends Fork> {
     private final ArrayList<F> forks;
     private final ArrayList<P> phils;
-    private final ArrayList<Thread> threads;
 
     private boolean started;
     private volatile boolean shouldStop;
+
+    private final ExecutorService executor;
 
     public DiningTable(int N) {
         if (N < 2) {
@@ -21,11 +24,11 @@ public abstract class DiningTable<P extends Philosopher, F extends Fork> {
         started = false;
         forks = new ArrayList<>(N);
         phils = new ArrayList<>(N);
-        threads = new ArrayList<>(N);
         for (int i = 0; i < N; i++) {
             forks.add(createFork());
             phils.add(createPhilosopher());
         }
+        executor = Executors.newFixedThreadPool(N);
     }
 
     public synchronized void start() {
@@ -44,8 +47,7 @@ public abstract class DiningTable<P extends Philosopher, F extends Fork> {
                     p.onHungry(left, right);
                 }
             });
-            t.start();
-            threads.add(t);
+            executor.submit(t);
         }
 
         started = true;
@@ -61,13 +63,7 @@ public abstract class DiningTable<P extends Philosopher, F extends Fork> {
         }
 
         shouldStop = true;
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        executor.shutdown();
     }
 
     public P philosopherAt(int index) {
